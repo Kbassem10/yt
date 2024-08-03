@@ -1,6 +1,4 @@
 import yt_dlp as youtube_dl
-import tempfile
-import os
 
 def download_video(link):
     try:
