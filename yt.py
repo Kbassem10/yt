@@ -6,7 +6,7 @@ def download_video(link, download_type):
         if download_type == 1:  # Audio download
             ydl_opts = {
                 'format': 'bestaudio',
-                'outtmpl': '/mnt/d/Videos/Youtube_Downloads/%(title)s',  # No extension here
+                'outtmpl': '/home/kbassem/Videos/Youtube_Downloads/%(title)s',  # No extension here
                 'postprocessors': [{
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'mp3',
@@ -15,12 +15,12 @@ def download_video(link, download_type):
             }
         elif download_type == 2:  # Video download
             ydl_opts = {
-                'outtmpl': '/mnt/d/Videos/Youtube_Downloads/%(title)s.%(ext)s',
+                'outtmpl': '/home/kbassem/Videos/Youtube_Downloads/%(title)s.%(ext)s',
                 'merge_output_format': 'mp4'
             }
 
         # Ensure the directory exists
-        output_dir = '/mnt/d/Videos/Youtube_Downloads/'
+        output_dir = '/home/kbassem/Videos/Youtube_Downloads/'
         os.makedirs(output_dir, exist_ok=True)
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
