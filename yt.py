@@ -2,7 +2,7 @@ import yt_dlp
 import os
 import shutil
 
-def download_video(link, download_type, save_dist):
+def download_video(link, download_type):
 
     save_dist_path = "/home/kbassem/Videos/Youtube_Downloads/%(title)s"
 
@@ -30,9 +30,6 @@ def download_video(link, download_type, save_dist):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([link])
         
-        '''if save_dist == 2:
-            server_path = "/run/user/1000/gvfs/smb-share:server=kb-imac.local,share=kb/Videos/Youtube_Download"
-            shutil.move(save_dist_path, server_path)'''
         print("Download completed")
 
     except Exception as e:
@@ -40,5 +37,4 @@ def download_video(link, download_type, save_dist):
 
 link = input("Link: ")
 download_type = int(input("How Do You Want to Download it: \n 1. Audio\n 2. Video\n"))
-save_dist = int(input("Where to save the file: \n 1. Device\n 2. Server\n"))
-download_video(link, download_type, save_dist)
+download_video(link, download_type)
