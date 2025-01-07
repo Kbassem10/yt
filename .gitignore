@@ -1,2 +1,4 @@
-yt_pro.py
-import yt_dlp.py
+yt_1.py
+yt_downloaded_audio/
+yt_downloaded_videos/
+__pycache__/
