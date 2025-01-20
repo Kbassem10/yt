@@ -1,6 +1,5 @@
 import yt_dlp
 import os
-import shutil
 
 def download_video(link, download_type):
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -24,12 +23,6 @@ def download_video(link, download_type):
             'outtmpl': save_dist_path,
             'merge_output_format': 'mp4'
         }
-
-    # try:
-    #     import yt_1
-    #     yt_1.move_file(output_dir)
-    # except Exception as e:
-    #     print(f"Error: {e}")
 
     try:
         # Ensure the directory exists
