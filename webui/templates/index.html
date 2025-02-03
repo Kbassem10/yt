@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YouTube Downloader</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
 </head>
 <body>
     {% if error %}
-            <div class="error-message">
-                {{ error }}
-            </div>
+        <div class="error-message">
+            {{ error }}
+        </div>
     {% endif %}
-    
+
     {% if done %}
         <div class="done-message">
-            {{ done }}</a>
+            {{ done }}
         </div>
     {% endif %}
     <div class="container">
@@ -29,7 +30,27 @@
             </select>
             <button type="submit">Download</button>
         </form>
+        <div id="progress-container">
+            <progress id="progress-bar" value="0" max="100"></progress>
+            <div id="progress-text">Progress: 0%</div>
+        </div>
     </div>
-    <script src="/static/main.js"></script>
+    <script>
+        var socket = io();
+
+        // Listen for progress updates
+        socket.on('progress', function(data) {
+            const progressBar = document.getElementById('progress-bar');
+            const progressText = document.getElementById('progress-text');
+
+            if (data.percent === -1) {
+                progressText.innerText = 'Error: Download failed';
+                progressBar.value = 0;
+            } else {
+                progressBar.value = data.percent;
+                progressText.innerText = 'Progress: ' + data.percent + '%';
+            }
+        });
+    </script>
 </body>
 </html>

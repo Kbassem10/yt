@@ -1,8 +1,26 @@
 from flask import Flask, render_template, request
+from flask_socketio import SocketIO, emit
 import os
 import yt_dlp
+import threading
+import re
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'your_secret_key'
+socketio = SocketIO(app)
+
+# Function to remove ANSI escape codes
+def remove_ansi_escape_codes(text):
+    ansi_escape = re.compile(r'\x1b\[([0-9;]*[mGKH])')
+    return ansi_escape.sub('', text)
+
+# Progress hook for yt-dlp
+def progress_hook(d):
+    if d['status'] == 'downloading':
+        percent_str = d.get('_percent_str', '0%')  # Get the progress percentage string
+        percent_str_clean = remove_ansi_escape_codes(percent_str)  # Remove ANSI escape codes
+        percent = float(percent_str_clean.strip('%'))  # Convert to float
+        socketio.emit('progress', {'percent': percent})  # Emit progress update
 
 def download_video(link, download_type):
     current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # Change to parent directory
@@ -17,14 +35,16 @@ def download_video(link, download_type):
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
-            }]
+            }],
+            'progress_hooks': [progress_hook],  # Add progress hook
         }
     elif download_type == '2':  # Video download
         output_dir = os.path.join(current_dir, 'yt_downloaded_videos')
         save_dist_path = os.path.join(output_dir, '%(title)s.%(ext)s')
         ydl_opts = {
             'outtmpl': save_dist_path,
-            'merge_output_format': 'mp4'
+            'merge_output_format': 'mp4',
+            'progress_hooks': [progress_hook],  # Add progress hook
         }
     else:
         raise ValueError("Invalid download type")
@@ -37,9 +57,11 @@ def download_video(link, download_type):
             ydl.download([link])
         
         print("Download completed")
+        socketio.emit('progress', {'percent': 100})  # Emit completion
 
     except Exception as e:
         print(f"Error: {e}")
+        socketio.emit('progress', {'percent': -1})  # Emit error
         raise
 
 @app.route("/")
@@ -51,12 +73,11 @@ def download():
     yt_url = request.form.get("yt_url")
     download_type = request.form.get("download_type")
 
-    try:
-        download_video(yt_url, download_type)
-        return render_template("index.html", done="Download completed")
-    
-    except Exception as e:
-        return render_template("index.html", error=f"Error: {e}")
+    # Start the download in a separate thread
+    thread = threading.Thread(target=download_video, args=(yt_url, download_type))
+    thread.start()
+
+    return render_template("index.html", done="Download started")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    socketio.run(app, debug=True)
