@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Downloader</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    {% if error %}
+            <div class="error-message">
+                {{ error }}
+            </div>
+    {% endif %}
+    
+    {% if done %}
+        <div class="done-message">
+            {{ done }}</a>
+        </div>
+    {% endif %}
+    <div class="container">
+        <h1>YouTube Downloader</h1>
+        <form id="download-form" action="/download" method="POST">
+            <input type="text" name="yt_url" placeholder="Enter YouTube URL" required>
+            <select name="download_type" required>
+                <option value="" disabled selected>Select Download Type</option>
+                <option value="1">Audio</option>
+                <option value="2">Video</option>
+            </select>
+            <button type="submit">Download</button>
+        </form>
+    </div>
+    <script src="/static/main.js"></script>
+</body>
+</html>
