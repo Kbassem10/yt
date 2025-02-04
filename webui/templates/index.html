@@ -16,12 +16,12 @@
 
     {% if done %}
         <div class="done-message">
-            {{ done }}
+            {{ done }}</a>
         </div>
     {% endif %}
     <div class="container">
         <h1>YouTube Downloader</h1>
-        <form id="download-form" action="/download" method="POST">
+        <form id="download-form">
             <input type="text" name="yt_url" placeholder="Enter YouTube URL" required>
             <select name="download_type" required>
                 <option value="" disabled selected>Select Download Type</option>
@@ -30,27 +30,17 @@
             </select>
             <button type="submit">Download</button>
         </form>
-        <div id="progress-container">
-            <progress id="progress-bar" value="0" max="100"></progress>
-            <div id="progress-text">Progress: 0%</div>
+        <div id="loading" style="display: none;">Loading...</div>
+        <div id="progress-container" style="display: none;">
+            <span id="ProgressLabel" class="sr-only">Loading</span>
+            <span role="progressbar" aria-labelledby="ProgressLabel" aria-valuenow="0" class="block rounded-full bg-gray-200">
+                <span class="block h-4 rounded-full bg-indigo-600 text-center text-[10px]/4" id="progress-bar" style="width: 0%;">
+                    <span class="font-bold text-white" id="progress-text"></span>
+                </span>
+            </span>
         </div>
+        <div id="message"></div>
     </div>
-    <script>
-        var socket = io();
-
-        // Listen for progress updates
-        socket.on('progress', function(data) {
-            const progressBar = document.getElementById('progress-bar');
-            const progressText = document.getElementById('progress-text');
-
-            if (data.percent === -1) {
-                progressText.innerText = 'Error: Download failed';
-                progressBar.value = 0;
-            } else {
-                progressBar.value = data.percent;
-                progressText.innerText = 'Progress: ' + data.percent + '%';
-            }
-        });
-    </script>
+    <script src="/static/main.js"></script>
 </body>
 </html>

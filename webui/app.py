@@ -1,8 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
 import os
 import yt_dlp
-import threading
 import re
 
 app = Flask(__name__)
@@ -36,7 +35,7 @@ def download_video(link, download_type):
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
-            'progress_hooks': [progress_hook],  # Add progress hook
+            'progress_hooks': [progress_hook]
         }
     elif download_type == '2':  # Video download
         output_dir = os.path.join(current_dir, 'yt_downloaded_videos')
@@ -44,7 +43,7 @@ def download_video(link, download_type):
         ydl_opts = {
             'outtmpl': save_dist_path,
             'merge_output_format': 'mp4',
-            'progress_hooks': [progress_hook],  # Add progress hook
+            'progress_hooks': [progress_hook]
         }
     else:
         raise ValueError("Invalid download type")
@@ -56,13 +55,10 @@ def download_video(link, download_type):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([link])
         
-        print("Download completed")
-        socketio.emit('progress', {'percent': 100})  # Emit completion
+        return "Download completed"
 
     except Exception as e:
-        print(f"Error: {e}")
-        socketio.emit('progress', {'percent': -1})  # Emit error
-        raise
+        return f"Error: {e}"
 
 @app.route("/")
 def index():
@@ -73,11 +69,8 @@ def download():
     yt_url = request.form.get("yt_url")
     download_type = request.form.get("download_type")
 
-    # Start the download in a separate thread
-    thread = threading.Thread(target=download_video, args=(yt_url, download_type))
-    thread.start()
-
-    return render_template("index.html", done="Download started")
+    message = download_video(yt_url, download_type)
+    return jsonify({"message": message})
 
 if __name__ == "__main__":
-    socketio.run(app, debug=True)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
