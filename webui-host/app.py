@@ -8,6 +8,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your_secret_key'
 socketio = SocketIO(app)
 
+
 def remove_ansi_escape_codes(text):
     ansi_escape = re.compile(r'\x1b\[([0-9;]*[mGKH])')
     return ansi_escape.sub('', text)
