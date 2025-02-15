@@ -1,24 +1,7 @@
-from flask import Flask, Response, render_template, request, jsonify
-# from flask_socketio import SocketIO, emit
+from flask import Flask, render_template, request, jsonify
 import yt_dlp
-import re
-import io
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
-# socketio = SocketIO(app)
-
-def remove_ansi_escape_codes(text):
-    ansi_escape = re.compile(r'\x1b\[([0-9;]*[mGKH])')
-    return ansi_escape.sub('', text)
-
-
-# def progress_hook(d):
-#     if d['status'] == 'downloading':
-#         percent_str = d.get('_percent_str', '0%')
-#         percent_str_clean = remove_ansi_escape_codes(percent_str)
-#         percent = float(percent_str_clean.strip('%'))
-#         socketio.emit('progress', {'percent': percent})
 
 def get_video_info(url, download_type):
     if download_type == '1':  # Audio
