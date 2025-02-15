@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify
 import yt_dlp
 
 app = Flask(__name__)
@@ -12,11 +12,29 @@ def get_video_info(url, download_type):
                 'preferredcodec': 'mp3',
                 'preferredquality': '192',
             }],
+            # Add browser headers
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-us,en;q=0.5',
+                'Sec-Fetch-Mode': 'navigate',
+            },
+            'cookiesfrombrowser': ('chrome',),  # Use cookies from Chrome
+            'nocheckcertificate': True,
         }
     else:  # Video
         ydl_opts = {
             'format': 'best',
             'merge_output_format': 'mp4',
+            # Add browser headers
+            'http_headers': {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-us,en;q=0.5',
+                'Sec-Fetch-Mode': 'navigate',
+            },
+            'cookiesfrombrowser': ('chrome',),  # Use cookies from Chrome
+            'nocheckcertificate': True,
         }
 
     try:
@@ -24,15 +42,18 @@ def get_video_info(url, download_type):
             info = ydl.extract_info(url, download=False)
             return info
     except Exception as e:
-        raise Exception(f"Failed to get video info: {str(e)}")
+        # More detailed error handling
+        error_message = str(e)
+        if "Sign in to confirm you're not a bot" in error_message:
+            raise Exception("YouTube is blocking automated access. Please try again later or contact support.")
+        elif "Video unavailable" in error_message:
+            raise Exception("This video is unavailable or private.")
+        else:
+            raise Exception(f"Failed to get video info: {error_message}")
 
 @app.route("/")
 def index():
     return render_template("index.html")
-
-@app.route("/static/<path:path>")
-def serve_static(path):
-    return send_from_directory("static", path)
 
 @app.route("/get_info", methods=["POST"])
 def get_info():
@@ -52,3 +73,6 @@ def get_info():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
+if __name__ == "__main__":
+    app.run(host='0.0.0.0', port=5000)
