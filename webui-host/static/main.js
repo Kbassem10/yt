@@ -3,8 +3,11 @@ document.getElementById('download-form').addEventListener('submit', async functi
     const form = event.target;
     const formData = new FormData(form);
 
-    document.getElementById('loading').style.display = 'block';
-    document.getElementById('message').innerText = 'Preparing download...';
+    // Show loading state
+    const loadingEl = document.getElementById('loading');
+    const messageEl = document.getElementById('message');
+    loadingEl.style.display = 'block';
+    messageEl.innerText = 'Preparing download...';
 
     try {
         const response = await fetch('/get_info', {
@@ -15,7 +18,7 @@ document.getElementById('download-form').addEventListener('submit', async functi
         const data = await response.json();
         
         if (response.ok) {
-            document.getElementById('message').innerText = 'Starting download...';
+            messageEl.innerText = 'Starting download...';
             
             // Create and trigger download
             const downloadLink = document.createElement('a');
@@ -25,13 +28,13 @@ document.getElementById('download-form').addEventListener('submit', async functi
             downloadLink.click();
             document.body.removeChild(downloadLink);
             
-            document.getElementById('message').innerText = 'Download started!';
+            messageEl.innerText = 'Download started!';
         } else {
             throw new Error(data.error || 'Failed to get video information');
         }
     } catch (error) {
-        document.getElementById('message').innerText = 'Error: ' + error.message;
+        messageEl.innerText = 'Error: ' + error.message;
     } finally {
-        document.getElementById('loading').style.display = 'none';
+        loadingEl.style.display = 'none';
     }
 });
