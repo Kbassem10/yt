@@ -13,6 +13,7 @@ def remove_ansi_escape_codes(text):
     ansi_escape = re.compile(r'\x1b\[([0-9;]*[mGKH])')
     return ansi_escape.sub('', text)
 
+
 def progress_hook(d):
     if d['status'] == 'downloading':
         percent_str = d.get('_percent_str', '0%')
